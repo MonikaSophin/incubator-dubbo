@@ -69,23 +69,50 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see java.net.URI
  */
 public /**final**/ class URL implements Serializable {
+    /**
+     * URL 格式：protocol://username:password@host:port/path?key=value&key=value,通过 URL#buildString(...) 方法生成。
+     *      所有配置最终都将转换为 URL表示，并由服务提供方生成，经注册中心传递给消费方,
+     *      各属性对应 URL 的参数，参见配置项一览表中的 "对应URL参数" 列。
+     *      详见(@link https://dubbo.gitbooks.io/dubbo-user-book/references/xml/introduction.html)。
+     */
 
     private static final long serialVersionUID = -1985165475234910535L;
 
+    /**
+     * 协议名
+     */
     private final String protocol;
 
+    /**
+     * 用户名
+     */
     private final String username;
 
+    /**
+     * 密码
+     */
     private final String password;
 
-    // by default, host to registry
+    /**
+     * by default, host to registry
+     * 地址
+     */
     private final String host;
 
-    // by default, port to registry
+    /**
+     *  // by default, port to registry
+     *  端口
+     */
     private final int port;
 
+    /**
+     * 路径（服务名）
+     */
     private final String path;
 
+    /**
+     * 参数集合  该属性，通过 AbstractConfig#appendParameters(parameters, config, prefix) 方法生成。
+     */
     private final Map<String, String> parameters;
 
     // ==== cache ====
@@ -166,6 +193,12 @@ public /**final**/ class URL implements Serializable {
         } else {
             parameters = new HashMap<String, String>(parameters);
         }
+        /**
+         * 返回指定Map的不可修改视图。客户端不能进行改变数据的行为。
+         *  注：Collections.unmodifiableMap实际上只为您提供保护，即无法更改对map中保存的对象的引用。
+         *      只是通过了put、remove、putAll、clear方法限制了返回的map，
+         *      但是，仍然可以从类外部修改原始封装映射，因为Collections.unmodifiableMap不会生成map映射内容的任何副本。
+         */
         this.parameters = Collections.unmodifiableMap(parameters);
     }
 

@@ -76,6 +76,11 @@ public abstract class AbstractConfig implements Serializable {
         Runtime.getRuntime().addShutdownHook(DubboShutdownHook.getDubboShutdownHook());
     }
 
+    /**
+     * 配置对象的编号 适用于除了 API 配置之外的三种配置方式（XML配置、注解配置、属性配置），标记一个配置对象，可用于对象之间的引用。
+     * 例如 XML 的 <dubbo:service provider="${PROVIDER_ID}"> ，其中 provider 为 <dubbo:provider> 的 ID 属性。
+     * 为什么不适用 API 配置？直接 #setXXX(config) 对象即可。
+     */
     protected String id;
 
     private static String convertLegacyValue(String key, String value) {

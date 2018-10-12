@@ -58,9 +58,11 @@ public class ProtocolConfig extends AbstractConfig {
     private Integer corethreads;
 
     // thread pool size (fixed size)
+    // 缺省值=100
     private Integer threads;
 
     // IO thread pool size (fixed size)
+    // 缺省值=cpu个数+1
     private Integer iothreads;
 
     // thread pool's queue length
@@ -73,6 +75,7 @@ public class ProtocolConfig extends AbstractConfig {
     private String codec;
 
     // serialization
+    // 协议序列化方式，当协议支持多种序列化方式时使用，dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json
     private String serialization;
 
     // charset
@@ -82,6 +85,7 @@ public class ProtocolConfig extends AbstractConfig {
     private Integer payload;
 
     // buffer size
+    // 网络读写缓冲区大小
     private Integer buffer;
 
     // heartbeat interval
@@ -91,6 +95,7 @@ public class ProtocolConfig extends AbstractConfig {
     private String accesslog;
 
     // transfort
+    // 协议的服务端和客户端实现类型，比如：dubbo协议的mina,netty等，可以分拆为server和client进行配置
     private String transporter;
 
     // how information is exchanged
@@ -118,6 +123,7 @@ public class ProtocolConfig extends AbstractConfig {
     private String status;
 
     // whether to register
+    // 该协议的服务是否注册到注册中心
     private Boolean register;
 
     // parameters
