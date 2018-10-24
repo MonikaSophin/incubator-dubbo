@@ -21,7 +21,7 @@ import org.apache.dubbo.config.support.Parameter;
 import java.util.Map;
 
 /**
- * MonitorConfig
+ * MonitorConfig  监控配置
  *
  * @export
  */
@@ -29,8 +29,15 @@ public class MonitorConfig extends AbstractConfig {
 
     private static final long serialVersionUID = -1184681514659198203L;
 
+    /**protocol
+     * 监控中心协议，如果为protocol="registry"，表示从注册中心发现监控中心地址，否则直连监控中心。	 default(dubbo)
+     */
     private String protocol;
 
+    /**<url>
+     * 直连监控中心服务器地址，address="10.20.130.230:12080"	default(N/A)
+     *
+     */
     private String address;
 
     private String username;

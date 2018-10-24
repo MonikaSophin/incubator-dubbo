@@ -23,7 +23,7 @@ import org.apache.dubbo.rpc.cluster.LoadBalance;
 import java.util.Map;
 
 /**
- * AbstractMethodConfig
+ * AbstractMethodConfig  方法级配置抽象类
  *
  * @export
  */
@@ -31,43 +31,66 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
 
     private static final long serialVersionUID = 1L;
 
-    // timeout for remote invocation in milliseconds
-    //  方法调用超时时间(毫秒)
+    /**<metodName>.timeout
+     *  方法调用超时时间(毫秒)
+     *  default(缺省为<dubbo:reference>的timeout)
+     *      // timeout for remote invocation in milliseconds
+     */
     protected Integer timeout;
 
-    // retry times
-    // 远程服务调用重试次数，不包括第一次调用，不需要重试请设为0
+    /**<metodName>.retries
+     * 远程服务调用重试次数，不包括第一次调用，不需要重试请设为0
+     * default(缺省为<dubbo:reference>的retries	)
+     *     // retry times
+     */
     protected Integer retries;
 
-    // max concurrent invocations
-    //  每服务消费者最大并发调用限制
+    /**<metodName>.actives
+     * 每服务消费者最大并发调用限制 default(0)
+     *     // max concurrent invocations
+     */
     protected Integer actives;
 
-    // load balance
-    // 负载均衡策略，可选值：random,roundrobin,leastactive,分别表示：随机，轮循，最少活跃调用
+    /**<metodName>.loadbalance
+     * 负载均衡策略，可选值：random,roundrobin,leastactive,分别表示：随机，轮循，最少活跃调用
+     * default(缺省为<dubbo:reference>的loadbalance)
+     *     // load balance
+     */
     protected String loadbalance;
 
-    // whether to async
-    // 是否异步执行，不可靠异步，只是忽略返回值，不阻塞执行线程
+    /**<metodName>.async
+     * 是否异步执行，不可靠异步，只是忽略返回值，不阻塞执行线程
+     * default(缺省为<dubbo:reference>的async)
+     *     // whether to async
+     */
     protected Boolean async;
 
-    // whether to ack async-sent
-    // 异步调用时，标记sent=true时，表示网络已发出数据
+    /**<methodName>.sent
+     * 异步调用时，标记sent=true时，表示网络已发出数据
+     * default(true)
+     *     // whether to ack async-sent
+     */
     protected Boolean sent;
 
-    // the name of mock class which gets called when a service fails to execute
-    // 在服务无法执行时调用的mock类的名称
+    /**
+     * 在服务无法执行时调用的mock类的名称
+     *     // the name of mock class which gets called when a service fails to execute
+     */
     protected String mock;
 
     // merger
     protected String merger;
 
-    // cache
-    // 以调用参数为key，缓存返回结果，可选：lru, threadlocal, jcache等
+    /**<methodName>.cache
+     * 以调用参数为key，缓存返回结果，可选：lru, threadlocal, jcache等
+     *     // cache
+     */
     protected String cache;
 
-    // validation
-    // 是否启用JSR303标准注解验证，如果启用，将对方法参数上的注解进行校验
+    /**<methodName>.validation
+     * 是否启用JSR303标准注解验证，如果启用，将对方法参数上的注解进行校验
+     *     // validation
+     */
     protected String validation;
 
     // customized parameters

@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 
 /**
  * Utility methods and public methods for parsing configuration
- *
+ * 用于解析配置的实用方法和公共方法
  * @export
  */
 public abstract class AbstractConfig implements Serializable {
@@ -177,32 +177,57 @@ public abstract class AbstractConfig implements Serializable {
         appendParameters(parameters, config, null);
     }
 
+    /**
+     * @param parameters 属性集合 实际上回用于{@link URL.parameters}
+     * @param config 配置对象
+     * @param prefix 属性的前缀。用于配置项添加到parameters中时的前缀
+     */
     @SuppressWarnings("unchecked")
     protected static void appendParameters(Map<String, String> parameters, Object config, String prefix) {
         if (config == null) {
             return;
         }
+        /**
+         *  反射得到配置对象的所有方法的数组。为下面配置项做准备。
+         */
         Method[] methods = config.getClass().getMethods();
         for (Method method : methods) {
             try {
                 String name = method.getName();
+                /**
+                 * 方法开头是get|is 并且不是getClass
+                 * 方法访问修饰符是public   {@link Modifier#isPublic(int)}
+                 * 方法参数列表长度为0
+                 * 方法返回值类型是基本数据类型 或者是其包装类 或者是String 或者是Object {@link #isPrimitive(Class)}
+                 *
+                 *  注：每个修饰符都是16进制的数值
+                 *                  例如: 表示public的数值为1,表示private的数值为2,表示protected的数值为4,static等修饰符类推。
+                 *                     而isPublic就是将目标方法的修饰符所表示的数值 与(&)上，
+                 *                     标准的public数值(1),结果是否是0（不是public）还是1（是public）。
+                 */
                 if ((name.startsWith("get") || name.startsWith("is"))
                         && !"getClass".equals(name)
                         && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 0
                         && isPrimitive(method.getReturnType())) {
                     Parameter parameter = method.getAnnotation(Parameter.class);
+                    //若返回值类型为Object或者忽略{parameter.excluded=true} ,则跳过
                     if (method.getReturnType() == Object.class || parameter != null && parameter.excluded()) {
                         continue;
                     }
+                    //方法名为get,则下标为3 为is时,则下标为2
                     int i = name.startsWith("get") ? 3 : 2;
+                    //切割驼峰命名的方法名 eg: abCdEfGH --> ab.cd.ef.g.h
                     String prop = StringUtils.camelToSplitName(name.substring(i, i + 1).toLowerCase() + name.substring(i + 1), ".");
                     String key;
                     if (parameter != null && parameter.key().length() > 0) {
+                        //将@Parameter注解的别名赋值给 属性名key
                         key = parameter.key();
                     } else {
+                        //将切割好的方法名赋值给 属性名key
                         key = prop;
                     }
+                    //获取属性值value
                     Object value = method.invoke(config);
                     String str = String.valueOf(value).trim();
                     if (value != null && str.length() > 0) {
@@ -210,6 +235,7 @@ public abstract class AbstractConfig implements Serializable {
                             str = URL.encode(str);
                         }
                         if (parameter != null && parameter.append()) {
+                            //获取默认拼加的属性值
                             String pre = parameters.get(Constants.DEFAULT_KEY + "." + key);
                             if (pre != null && pre.length() > 0) {
                                 str = pre + "," + str;
@@ -222,10 +248,14 @@ public abstract class AbstractConfig implements Serializable {
                         if (prefix != null && prefix.length() > 0) {
                             key = prefix + "." + key;
                         }
+                        //添加配置项值parameters
                         parameters.put(key, str);
+
+                        //System.out.println("配置项KV:"+key+"\t"+str);
                     } else if (parameter != null && parameter.required()) {
                         throw new IllegalStateException(config.getClass().getSimpleName() + "." + key + " == null");
                     }
+                    //当方法名getParameters、访问修饰符为public、参数列表长度为0且返回值参数为map。非dubbo内置的配置项
                 } else if ("getParameters".equals(name)
                         && Modifier.isPublic(method.getModifiers())
                         && method.getParameterTypes().length == 0
@@ -262,6 +292,9 @@ public abstract class AbstractConfig implements Serializable {
                         && method.getParameterTypes().length == 0
                         && isPrimitive(method.getReturnType())) {
                     Parameter parameter = method.getAnnotation(Parameter.class);
+                    /**
+                     * @see Parameter#attribute()=true时，主要用在{@link MethodConfig}
+                     */
                     if (parameter == null || !parameter.attribute())
                         continue;
                     String key;
@@ -285,6 +318,9 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    /**
+     * @see Class#isPrimitive()
+     */
     private static boolean isPrimitive(Class<?> type) {
         return type.isPrimitive()
                 || type == String.class
