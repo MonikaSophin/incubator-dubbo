@@ -28,7 +28,7 @@ import org.apache.dubbo.remoting.telnet.TelnetHandler;
 import java.util.Arrays;
 
 /**
- * ProviderConfig
+ * ProviderConfig  服务提供者缺省配置类
  *
  * @export
  * @see org.apache.dubbo.config.ProtocolConfig
@@ -40,7 +40,11 @@ public class ProviderConfig extends AbstractServiceConfig {
 
     // ======== protocol default values, it'll take effect when protocol's attributes are not set ========
 
-    // service IP addresses (used when there are multiple network cards available)
+    /**<host>
+     * 服务主机名，多网卡选择或指定VIP及域名时使用，为空则自动查找本机IP，建议不要配置，让Dubbo自动获取本机IP
+     * default(自动获取本机IP)
+     *     // service IP addresses (used when there are multiple network cards available)
+     */
     private String host;
 
     // service port
@@ -49,34 +53,78 @@ public class ProviderConfig extends AbstractServiceConfig {
     // context path
     private String contextpath;
 
-    // thread pool
+    /**threadpool
+     * 线程池类型，可选：fixed/cached/eager/limited/mock
+     * default(fixed)
+     *   fixed 固定大小线程池，启动时建立线程，不关闭，一直持有。(缺省)
+     *   cached 缓存线程池，空闲一分钟自动删除，需要时重建。
+     *   limited 可伸缩线程池，但池中的线程数只会增长不会收缩。只增长不收缩的目的是为了避免收缩时突然来了大流量引起的性能问题。
+     *     // thread pool
+     */
     private String threadpool;
 
-    // thread pool size (fixed size)
+    /**threads
+     * 服务线程池大小(固定大小)
+     * default(100)
+     *     // thread pool size (fixed size)
+     */
     private Integer threads;
 
-    // IO thread pool size (fixed size)
+    /**iothreads
+     * IO线程池，接收网络读写中断，以及序列化和反序列化，不处理业务，业务线程池参见threads配置，此线程池和CPU相关，不建议配置.
+     * default(CPU个数+1)
+     *     // IO thread pool size (fixed size)
+     */
     private Integer iothreads;
 
-    // thread pool queue length
+    /**queues
+     * 线程池队列大小，当线程池满时，排队等待执行的队列大小，
+     * 建议不要设置，当线程程池时应立即失败，重试其它服务提供机器，而不是排队，除非有特殊需求。
+     * default(0)
+     *     // thread pool queue length
+     */
     private Integer queues;
 
-    // max acceptable connections
+    /**accepts
+     * 服务提供方最大可接受连接数
+     * default(0)
+     *     // max acceptable connections
+     */
     private Integer accepts;
 
-    // protocol codec
+    /**codec
+     * 协议编码方式
+     * default(dubbo)
+     *     // protocol codec
+     */
     private String codec;
 
-    // charset
+    /**charset
+     * 序列化编码
+     * default(UTF-8)
+     *     // charset
+     */
     private String charset;
 
-    // payload max length
+    /**payload
+     * 请求及响应数据包大小限制，单位：字节
+     * default(88388608(=8M))
+     *     // payload max length
+     */
     private Integer payload;
 
-    // buffer size
+    /**buffer
+     * 网络读写缓冲区大小 单位：字节
+     * default(8192)
+     *     // buffer size
+     */
     private Integer buffer;
 
-    // transporter
+    /**transporter
+     * 协议的服务端和客户端实现类型，比如：dubbo协议的mina,netty等，可以分拆为server和client配置
+     * default(dubbo协议缺省为netty)
+     *     // transfort
+     */
     private String transporter;
 
     // how information gets exchanged
@@ -88,13 +136,24 @@ public class ProviderConfig extends AbstractServiceConfig {
     // networker
     private String networker;
 
-    // server impl
+    /**server
+     * 协议的服务器端实现类型，比如：dubbo协议的mina,netty等，http协议的jetty,servlet等
+     * default(dubbo协议缺省为netty，http协议缺省为servlet)
+     *     // sever impl
+     */
     private String server;
 
-    // client impl
+    /**client
+     * 协议的客户端实现类型，比如：dubbo协议的mina,netty等
+     * default(dubbo协议缺省为netty)
+     *     // client impl
+     */
     private String client;
 
-    // supported telnet commands, separated with comma.
+    /**telnet
+     * 所支持的telnet命令，多个命令用逗号分隔
+     *     // supported telnet commands, separated with comma.
+     */
     private String telnet;
 
     // command line prompt
@@ -106,7 +165,11 @@ public class ProviderConfig extends AbstractServiceConfig {
     // wait time when stop
     private Integer wait;
 
-    // if it's default
+    /**
+     * 是否为缺省协议，用于多协议
+     * default(false)
+     *     // if it's default
+     */
     private Boolean isDefault;
 
     @Deprecated

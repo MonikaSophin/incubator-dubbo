@@ -71,7 +71,10 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
 
     private static final ProxyFactory proxyFactory = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
     private final List<URL> urls = new ArrayList<URL>();
-    // interface name
+    /**
+     * 服务接口名
+     *     // interface type
+     */
     private String interfaceName;
     private Class<?> interfaceClass;
     private Class<?> asyncInterfaceClass;
@@ -83,6 +86,9 @@ public class ReferenceConfig<T> extends AbstractReferenceConfig {
     private List<MethodConfig> methods;
     // default config
     private ConsumerConfig consumer;
+    /**protocol
+     * 只调用指定协议的服务提供方，其它协议忽略。
+     */
     private String protocol;
     // interface proxy reference
     private transient volatile T ref;

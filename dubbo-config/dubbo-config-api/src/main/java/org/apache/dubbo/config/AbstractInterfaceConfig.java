@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * AbstractDefaultConfig
+ * AbstractDefaultConfig   抽象配置类
  *
  * @export
  */
@@ -53,41 +53,65 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // local impl class name for the service interface
     protected String local;
 
-    // local stub class name for the service interface
-    // 设为true，表示使用缺省代理类名，即：接口名 + Local后缀，服务接口客户端本地代理类名，用于在客户端执行本地逻辑，
-    // 如本地缓存等，该本地代理类的构造函数必须允许传入远程代理对象，构造函数如：public XxxServiceLocal(XxxService xxxService)
+    /**stub
+     * 服务接口客户端本地代理类名，用于在客户端执行本地逻辑，
+     * 如本地缓存等，该本地代理类的构造函数必须允许传入远程代理对象，
+     * 构造函数如：public XxxServiceLocal(XxxService xxxService)
+     *     // local stub class name for the service interface
+     */
     protected String stub;
 
     // service monitor
     protected MonitorConfig monitor;
 
-    // proxy type
-    // 生成动态代理方式，可选：jdk/javassist(缺省值)
+    /**proxy
+     * 生成动态代理方式，可选：jdk/javassist
+     * default(javassist)
+     *         // proxy type
+     */
     protected String proxy;
 
-    // cluster type
-    //集群方式，可选：failover(缺省值)/failfast/failsafe/failback/forking
+    /**cluster
+     * 集群方式，可选：failover/failfast/failsafe/failback/forking
+     * default(failover)
+     * failover:失败自动切换，当出现失败，重试其它服务器。通常用于读操作，但重试会带来更长延迟。可通过 retries="2" 来设置重试次数(不含第一次)。
+     * failfast:快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
+     * failsafe:失败安全，出现异常时，直接忽略。通常用于写入审计日志等操作。
+     * failback:失败自动恢复，后台记录失败请求，定时重发。通常用于消息通知操作。
+     * forking:并行调用多个服务器，只要一个成功即返回。通常用于实时性要求较高的读操作，但需要浪费更多服务资源。可通过 forks="2" 来设置最大并行数。
+     * broadcast:广播调用所有提供者，逐个调用，任意一台报错则报错。通常用于通知所有提供者更新缓存或日志等本地资源信息。
+     *     // cluster type
+     */
     protected String cluster;
 
-    // filter
-    // 服务提供方远程调用过程拦截器名称，多个名称用逗号分隔（缺省值为default）
+    /**service.filter/reference.filter
+     *  服务提供方远程调用过程拦截器名称，多个名称用逗号分隔（缺省值为default）
+     *      // filter
+     */
     protected String filter;
 
-    // listener
-    // 服务提供方导出服务监听器名称，多个名称用逗号分隔（缺省值为default）
+    /**exporter.listener(ServiceConfig)/invoker.listener(ReferenceConfig)
+     *  服务提供方导出服务监听器名称，多个名称用逗号分隔（缺省值为default）
+     *     //listener
+     */
     protected String listener;
 
-    // owner
-    // 服务负责人，用于服务治理，请填写负责人公司邮箱前缀
+    /**owner
+     *  服务负责人，用于服务治理，请填写负责人公司邮箱前缀
+     *      // owner
+     */
     protected String owner;
 
-    // connection limits, 0 means shared connection, otherwise it defines the connections delegated to the current service
-    // 对每个提供者的最大连接数，rmi、http、hessian等短连接协议表示限制连接数，dubbo等长连接协表示建立的长连接个数
-    //  0表示共享连接
+    /**
+     * 对每个提供者的最大连接数，rmi、http、hessian等短连接协议表示限制连接数，dubbo等长连接协表示建立的长连接个数
+     *     // connection limits, 0 means shared connection, otherwise it defines the connections delegated to the current service
+     */
     protected Integer connections;
 
-    // layer
-    // 服务提供者所在的分层。如：biz、dao、intl:web、china:acton。
+    /**layer
+     * 服务提供者所在的分层。如：biz、dao、intl:web、china:acton。
+     *     // layer
+     */
     protected String layer;
 
     // application info
@@ -111,6 +135,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
     private String scope;
 
+    /**
+     * 检查注册中心的相关配置
+     * {@link #loadRegistries(boolean)}
+     * 实际上，该方法会初始化RegistryConfig的配置属性
+     */
     protected void checkRegistry() {
         // for backward compatibility
         if (registries == null || registries.isEmpty()) {
@@ -139,6 +168,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 检查应用的相关配置
+     * 在{@link ReferenceConfig#init()}时与被调用
+     * 在{@link ServiceConfig#doExport()}时与被调用
+     * 实际上，该方法会初始化ApplicationConfig的配置属性
+     */
     @SuppressWarnings("deprecation")
     protected void checkApplication() {
         // for backward compatibility
@@ -264,6 +299,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         return null;
     }
 
+    /**
+     *检查接口和方法的相关配置
+     * 在{@link ReferenceConfig#init()}时与被调用
+     * 在{@link ServiceConfig#doExport()}时与被调用
+     *  接口： 不能为null、类型要为Interface
+     *  方法： 不能为null、不能为空、在接口中已定义
+     */
     protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
         // interface cannot be null
         if (interfaceClass == null) {
@@ -295,6 +337,11 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
+    /**
+     * 检查stub（{@link #stub}本地存根）和mock（{@link #mock}非业务异常时的调用函数）的相关配置
+     * 在{@link ReferenceConfig#init()}时与被调用
+     * 在{@link ServiceConfig#doExport()}时与被调用
+     */
     protected void checkStubAndMock(Class<?> interfaceClass) {
         if (ConfigUtils.isNotEmpty(local)) {
             Class<?> localClass = ConfigUtils.isDefault(local) ? ReflectUtils.forName(interfaceClass.getName() + "Local") : ReflectUtils.forName(local);
@@ -415,6 +462,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         this.connections = connections;
     }
 
+    //添加默认配置项
     @Parameter(key = Constants.REFERENCE_FILTER_KEY, append = true)
     public String getFilter() {
         return filter;
@@ -425,6 +473,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         this.filter = filter;
     }
 
+    //添加默认配置项
     @Parameter(key = Constants.INVOKER_LISTENER_KEY, append = true)
     public String getListener() {
         return listener;

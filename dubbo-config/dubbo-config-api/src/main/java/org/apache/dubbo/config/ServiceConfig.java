@@ -63,7 +63,7 @@ import static org.apache.dubbo.common.utils.NetUtils.isInvalidLocalHost;
 import static org.apache.dubbo.common.utils.NetUtils.isInvalidPort;
 
 /**
- * ServiceConfig
+ * ServiceConfig  服务提供者暴露服务配置类
  *
  * @export
  */
@@ -80,12 +80,25 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
     private static final ScheduledExecutorService delayExportExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DubboServiceDelayExporter", true));
     private final List<URL> urls = new ArrayList<URL>();
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
-    // interface type
+
+    /**
+     * 服务接口名
+     *     // interface type
+     */
     private String interfaceName;
     private Class<?> interfaceClass;
-    // reference to interface impl
+
+    /**
+     * 服务对象实现引用
+     *     // reference to interface impl
+     */
     private T ref;
-    // service name
+
+    /**<path>
+     * 服务路径 (注意：1.0不支持自定义路径，总是使用接口名，如果有1.0调2.0，配置服务路径可能不兼容)
+     * default(缺省为接口名)
+     *     // service name
+     */
     private String path;
     // method configuration
     private List<MethodConfig> methods;

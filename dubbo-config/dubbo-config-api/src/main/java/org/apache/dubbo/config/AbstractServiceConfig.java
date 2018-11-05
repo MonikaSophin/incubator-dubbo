@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * AbstractServiceConfig
+ * AbstractServiceConfig  抽象服务配置类
  *
  * @export
  */
@@ -32,39 +32,85 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
 
     private static final long serialVersionUID = 1L;
 
-    // version
+    /**version
+     * 服务版本，建议使用两位数字版本，如：1.0，通常在接口不兼容时版本号才需要升级
+     * default(0.0.0)
+     *     // version
+     */
     protected String version;
 
-    // group
+    /**group
+     * 服务分组，当一个接口有多个实现，可以用分组区分
+     *     // group
+     */
     protected String group;
 
-    // whether the service is deprecated
+    /**deprecated
+     * 服务是否过时，如果设为true，消费方引用时将打印服务过时警告error日志
+     * default(false)
+     *    // whether the service is deprecated
+     */
     protected Boolean deprecated;
 
-    // delay service exporting
+    /**delay
+     * 延迟注册服务时间(毫秒) ，设为-1时，表示延迟到Spring容器初始化完成时暴露服务
+     * default(0)--不延迟
+     *     // delay service exporting
+     */
     protected Integer delay;
 
     // whether to export the service
     protected Boolean export;
 
-    // weight
+    /**weight
+     * 服务权重
+     *     // weight
+     */
     protected Integer weight;
 
-    // document center
+    /**document
+     * 服务文档URL
+     *     // document center
+     */
     protected String document;
 
-    // whether to register as a dynamic service or not on register center
+    /**dynamic
+     * 服务是否动态注册，
+     * 如果设为false，注册后将显示后disable状态，需人工启用，并且服务提供者停止时，也不会自动取消注册，需人工禁用。
+     * default(true)
+     *     // whether to register as a dynamic service or not on register center
+     */
     protected Boolean dynamic;
 
-    // whether to use token
+    /**token
+     * 令牌验证，为空表示不开启，如果为true，表示随机生成动态令牌，否则使用静态令牌，
+     * 令牌的作用是防止消费者绕过注册中心直接访问，保证注册中心的授权功能有效，如果使用点对点调用，需关闭令牌功能
+     * default(false)
+     *     // whether to use token
+     */
     protected String token;
 
-    // access log
+    /**accesslog
+     * 设为true，将向logger中输出访问日志，也可填写访问日志文件路径，直接把访问日志输出到指定文件
+     * default(false)
+     *     // access log
+     */
     protected String accesslog;
+
     protected List<ProtocolConfig> protocols;
-    // max allowed execute times
+
+    /**executes
+     * 服务提供者每服务每方法最大可并行执行请求数
+     * default(0)
+     *     // max allowed execute times
+     */
     private Integer executes;
-    // whether to register
+
+    /**register
+     * 该协议的服务是否注册到注册中心
+     * default(true)
+     *     // whether to register
+     */
     private Boolean register;
 
     // warm up period
