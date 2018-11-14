@@ -136,7 +136,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // callback limits
     private Integer callbacks;
 
-    // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
+    /**
+     * 引用/导出服务的范围，如果它是本地的，则表示仅在当前JVM中搜索。
+     *     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
+     */
     private String scope;
 
     /**
