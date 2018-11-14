@@ -121,6 +121,10 @@ public final class Version {
         }
     }
 
+    /**
+     * 先从MANIFEST.MF查找版本号，若查找不到则采用默认的版本号
+     * MANIFEST.MF文件可以使用{@link java.util.jar.Manifest}进行读取。
+     */
     public static String getVersion(Class<?> cls, String defaultVersion) {
         try {
             // find version info from MANIFEST.MF first

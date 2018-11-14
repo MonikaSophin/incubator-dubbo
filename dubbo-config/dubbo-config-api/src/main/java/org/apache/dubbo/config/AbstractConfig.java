@@ -94,6 +94,7 @@ public abstract class AbstractConfig implements Serializable {
         return value;
     }
 
+    //读取环境变量和properties 拼接至config对象中
     protected static void appendProperties(AbstractConfig config) {
         if (config == null) {
             return;
@@ -161,6 +162,13 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
+    /**
+     * 用来解析配置类得到tag的名称
+     * eg：ProviderConfig 截取后面的SUFFIXES(Config/Bean)得到provider标签
+     *
+     * @param cls
+     * @return
+     */
     private static String getTagName(Class<?> cls) {
         String tag = cls.getSimpleName();
         for (String suffix : SUFFIXES) {
@@ -178,7 +186,7 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     /**
-     * @param parameters 属性集合 实际上回用于{@link URL.parameters}
+     * @param parameters 属性集合 实际上会用于{@link URL.parameters}
      * @param config 配置对象
      * @param prefix 属性的前缀。用于配置项添加到parameters中时的前缀
      */

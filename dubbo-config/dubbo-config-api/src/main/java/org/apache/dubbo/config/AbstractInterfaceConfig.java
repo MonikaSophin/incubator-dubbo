@@ -58,6 +58,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      * 如本地缓存等，该本地代理类的构造函数必须允许传入远程代理对象，
      * 构造函数如：public XxxServiceLocal(XxxService xxxService)
      *     // local stub class name for the service interface
+     *
+     * ps:存根类是一个类，它实现了一个接口，但是实现后的每个方法都是空的。
+     * 它的作用是，如果一个接口有很多方法，如果要实现这个接口，就要实现所有的方法。但是一个类从业务来说，可能只需要其中一两个方法。
+     * 如果直接去实现这个接口，除了实现所需的方法，还要实现其他所有的无关方法。而如果通过继承存根类就实现接口，就免去了这种麻烦。
      */
     protected String stub;
 
@@ -139,6 +143,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      * 检查注册中心的相关配置
      * {@link #loadRegistries(boolean)}
      * 实际上，该方法会初始化RegistryConfig的配置属性
+     * 使用：{@link ServiceConfig#doExport()}
      */
     protected void checkRegistry() {
         // for backward compatibility

@@ -75,12 +75,15 @@ public class ProviderModel {
         }
         return null;
     }
-
+    //获取暴露服务的方法名，参数列表，返回类型等信息
     private void initMethod() {
         Method[] methodsToExport = null;
         methodsToExport = metadata.getInterfaceClass().getMethods();
 
         for (Method method : methodsToExport) {
+            // 将此对象的{@code accessible}标志设置为指示的布尔值。
+            // 值{@code true}表示反射对象应该禁止Java语言访问检查。
+            // 值{@code false}表示反射对象应强制执行Java语言访问检查。
             method.setAccessible(true);
 
             List<ProviderMethodModel> methodModels = methods.get(method.getName());

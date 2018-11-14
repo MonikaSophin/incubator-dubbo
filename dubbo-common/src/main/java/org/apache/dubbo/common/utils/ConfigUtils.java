@@ -296,6 +296,7 @@ public class ConfigUtils {
         if (PID < 0) {
             try {
                 RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+                //RuntimeMXBean#getName()：返回表示正在运行的Java虚拟机的名称。
                 String name = runtime.getName(); // format: "pid@hostname"
                 PID = Integer.parseInt(name.substring(0, name.indexOf('@')));
             } catch (Throwable e) {

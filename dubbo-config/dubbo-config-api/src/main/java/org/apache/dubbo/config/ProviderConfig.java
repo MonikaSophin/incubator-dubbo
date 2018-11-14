@@ -127,10 +127,15 @@ public class ProviderConfig extends AbstractServiceConfig {
      */
     private String transporter;
 
-    // how information gets exchanged
+    /**信息交换的方式
+     *     // how information gets exchanged
+     */
     private String exchanger;
 
-    // thread dispatching mode
+    /**dispatcher
+     * 线程调度模式
+     *     // thread dispatching mode
+     */
     private String dispatcher;
 
     // networker

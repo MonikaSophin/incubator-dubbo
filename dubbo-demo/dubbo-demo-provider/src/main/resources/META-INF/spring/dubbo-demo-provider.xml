@@ -36,5 +36,9 @@
 
     <!-- declare the service interface to be exported -->
     <dubbo:service interface="org.apache.dubbo.demo.DemoService" ref="demoService"/>
+       <!-- <dubbo:method name="sayHello" retry="true" retries="2">
+            <dubbo:argument index="0" type="java.lang.String"/>
+        </dubbo:method>
+    </dubbo:service>-->
 
 </beans>

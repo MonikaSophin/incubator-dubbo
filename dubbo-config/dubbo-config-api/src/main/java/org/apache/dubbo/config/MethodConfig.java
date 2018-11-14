@@ -40,7 +40,10 @@ public class MethodConfig extends AbstractMethodConfig {
     //  状态
     private Integer stat;
 
-    // whether to retry
+    /**
+     * 是否重试
+     *     // whether to retry
+     */
     private Boolean retry;
 
     // if it's reliable   是否是可靠的

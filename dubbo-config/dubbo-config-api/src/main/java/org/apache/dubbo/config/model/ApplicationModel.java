@@ -68,6 +68,7 @@ public class ApplicationModel {
         return true;
     }
 
+    //providedServices表示已经注册过的服务
     public static void initProviderModel(String serviceName, ProviderModel providerModel) {
         if (providedServices.put(serviceName, providerModel) != null) {
             logger.warn("already register the provider service: " + serviceName);
