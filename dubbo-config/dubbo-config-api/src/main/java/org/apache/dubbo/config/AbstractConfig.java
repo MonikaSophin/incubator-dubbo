@@ -83,6 +83,7 @@ public abstract class AbstractConfig implements Serializable {
      */
     protected String id;
 
+    //旧版本与新版本的差异，通过此方法转换
     private static String convertLegacyValue(String key, String value) {
         if (value != null && value.length() > 0) {
             if ("dubbo.service.max.retry.providers".equals(key)) {
@@ -94,36 +95,57 @@ public abstract class AbstractConfig implements Serializable {
         return value;
     }
 
-    //读取环境变量和properties 拼接至config对象中
+    /**
+     * 如果公共配置很简单，没有多注册中心，多协议等情况，或者想多个 Spring 容器想共享配置，可以使用 dubbo.properties 作为缺省配置。
+     * Dubbo将自动加载classpath根目录下的dubbo.properties，可以通过JVM启动参数 -Ddubbo.properties.file=xxx.properties改变缺省配置位置。
+     *   eg: 比如：dubbo.application.name=foo等价于<dubbo:application name="foo" />
+     *
+     * 覆盖策略：
+     * JVM启动-D参数优先，这样可以使用户在部署和启动时进行参数重写，比如在启动时需改变协议的端口。
+     *  eg: java -Ddubbo.protocol.port=20880
+     * XML配置次之，如果在 XML 中有配置，则 dubbo.properties 中的相应配置项无效。
+     * eg: xml配置 <dubbo:protocol port="20880"/>
+     * 最后Properties配置文件，相当于缺省值，只有 XML 没有配置时，dubbo.properties 的相应配置项才会生效，通常用于共享公共配置，比如应用名
+     * eg: dubbo.properties dubbo.protocol.port=20880
+     *
+     *     //读取设置的properties(系统属性值) 拼接至config对象中
+     * @param config
+     */
     protected static void appendProperties(AbstractConfig config) {
         if (config == null) {
             return;
         }
+        // 获取属性配置的前缀 eg: dubbo.protocol.
         String prefix = "dubbo." + getTagName(config.getClass()) + ".";
+        // 获取配置对象的方法名
         Method[] methods = config.getClass().getMethods();
         for (Method method : methods) {
             try {
                 String name = method.getName();
-                if (name.length() > 3 && name.startsWith("set") && Modifier.isPublic(method.getModifiers())
-                        && method.getParameterTypes().length == 1 && isPrimitive(method.getParameterTypes()[0])) {
+                if (name.length() > 3 && name.startsWith("set") && Modifier.isPublic(method.getModifiers())//方法是public的setter方法
+                        && method.getParameterTypes().length == 1 && isPrimitive(method.getParameterTypes()[0])) {//方法参数是一个基本数据类型
+                    //获取属性名  eg: ProtocolConfig#SetPort 则properties=port（以驼峰命名方式切割）
                     String property = StringUtils.camelToSplitName(name.substring(3, 4).toLowerCase() + name.substring(4), ".");
 
+                    // 【启动参数变量】优先从带有 `Config#id` 的配置中获取，例如：`dubbo.protocol.demo-provider.port` 。
                     String value = null;
                     if (config.getId() != null && config.getId().length() > 0) {
-                        String pn = prefix + config.getId() + "." + property;
+                        String pn = prefix + config.getId() + "." + property; //带有`Config#id`的配置
+                        value = System.getProperty(pn);
+                        if (!StringUtils.isBlank(value)) {
+                            logger.info("Use System Property " + pn + " to config dubbo");
+                        }
+                    }
+                    //【启动参数变量】如果获取不到，则从不带 `Config#id` 的配置中获取，例如：`dubbo.protocol.port` 。
+                    if (value == null || value.length() == 0) {
+                        String pn = prefix + property; //不带有`Config#id`的配置
                         value = System.getProperty(pn);
                         if (!StringUtils.isBlank(value)) {
                             logger.info("Use System Property " + pn + " to config dubbo");
                         }
                     }
                     if (value == null || value.length() == 0) {
-                        String pn = prefix + property;
-                        value = System.getProperty(pn);
-                        if (!StringUtils.isBlank(value)) {
-                            logger.info("Use System Property " + pn + " to config dubbo");
-                        }
-                    }
-                    if (value == null || value.length() == 0) {
+                        //由于覆盖规则是 JVM -D参数(系统属性值)>XML配置>properties文件配置，获取getter是为了确认XML是否配置了配置
                         Method getter;
                         try {
                             getter = config.getClass().getMethod("get" + name.substring(3));
@@ -136,12 +158,15 @@ public abstract class AbstractConfig implements Serializable {
                         }
                         if (getter != null) {
                             if (getter.invoke(config) == null) {
+                                //【properties配置】优先从带有'config#id'的配置中获取。 eg:'dubbo.protocol.demo-provider.port'
                                 if (config.getId() != null && config.getId().length() > 0) {
                                     value = ConfigUtils.getProperty(prefix + config.getId() + "." + property);
                                 }
+                                //【properties配置】取得到的话，则从不带有'config#id'的配置中获取。 eg:'dubbo.protocol.port'
                                 if (value == null || value.length() == 0) {
                                     value = ConfigUtils.getProperty(prefix + property);
                                 }
+                                //【properties配置】老版本兼容，从不带'config#id'的配置获取。 eg:'dubbo.protocol.name'
                                 if (value == null || value.length() == 0) {
                                     String legacyKey = legacyProperties.get(prefix + property);
                                     if (legacyKey != null && legacyKey.length() > 0) {
@@ -166,7 +191,7 @@ public abstract class AbstractConfig implements Serializable {
      * 用来解析配置类得到tag的名称
      * eg：ProviderConfig 截取后面的SUFFIXES(Config/Bean)得到provider标签
      *
-     * @param cls
+     * @param cls 主要用来获取类名
      * @return
      */
     private static String getTagName(Class<?> cls) {
@@ -186,7 +211,7 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     /**
-     * @param parameters 属性集合 实际上会用于{@link URL.parameters}
+     * @param parameters 属性集合 实际上会用于{@link URL#parameters}
      * @param config 配置对象
      * @param prefix 属性的前缀。用于配置项添加到parameters中时的前缀
      */
