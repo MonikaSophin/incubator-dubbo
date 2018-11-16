@@ -674,6 +674,12 @@ public final class StringUtils {
         return buf.toString();
     }
 
+    /**
+     * 驼峰命名的切割方式。
+     * @param camelName
+     * @param split
+     * @return
+     */
     public static String camelToSplitName(String camelName, String split) {
         if (camelName == null || camelName.length() == 0) {
             return camelName;
