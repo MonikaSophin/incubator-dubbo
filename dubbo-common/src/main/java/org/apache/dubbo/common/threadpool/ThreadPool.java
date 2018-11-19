@@ -34,6 +34,8 @@ public interface ThreadPool {
      *
      * @param url URL contains thread parameter
      * @return thread pool
+     *
+     * @SPI("fixed") 注解，Dubbo SPI 拓展点，默认为 "fixed"。
      */
     @Adaptive({Constants.THREADPOOL_KEY})
     Executor getExecutor(URL url);

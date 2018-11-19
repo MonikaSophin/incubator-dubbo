@@ -35,15 +35,25 @@ import java.util.concurrent.TimeUnit;
  */
 public class FixedThreadPool implements ThreadPool {
 
+    /**
+     * queues = 0, SynchronousQueue
+     * queues < 0, LinkedBlockingQueue
+     * queues > 0, LinkedBlockingQueue(queues)
+     */
     @Override
     public Executor getExecutor(URL url) {
+        //线程池名
         String name = url.getParameter(Constants.THREAD_NAME_KEY, Constants.DEFAULT_THREAD_NAME);
+        //线程数
         int threads = url.getParameter(Constants.THREADS_KEY, Constants.DEFAULT_THREADS);
+        //队列数
         int queues = url.getParameter(Constants.QUEUES_KEY, Constants.DEFAULT_QUEUES);
+        //创建执行器
         return new ThreadPoolExecutor(threads, threads, 0, TimeUnit.MILLISECONDS,
                 queues == 0 ? new SynchronousQueue<Runnable>() :
                         (queues < 0 ? new LinkedBlockingQueue<Runnable>()
                                 : new LinkedBlockingQueue<Runnable>(queues)),
+                //给线程起名                                          //用于当任务添加到线程池中被拒绝时。
                 new NamedInternalThreadFactory(name, true), new AbortPolicyWithReport(name, url));
     }
 

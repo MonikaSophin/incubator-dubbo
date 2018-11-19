@@ -40,12 +40,16 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbortPolicyWithReport.class);
 
+    //线程名
     private final String threadName;
 
+    //url
     private final URL url;
 
+    //最后打印时间
     private static volatile long lastPrintTime = 0;
 
+    //信号量
     private static Semaphore guard = new Semaphore(1);
 
     public AbortPolicyWithReport(String threadName, URL url) {
@@ -55,6 +59,7 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
 
     @Override
     public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        //打印日志警告信息
         String msg = String.format("Thread pool is EXHAUSTED!" +
                         " Thread Name: %s, Pool Size: %d (active: %d, core: %d, max: %d, largest: %d), Task: %d (completed: %d)," +
                         " Executor status:(isShutdown:%s, isTerminated:%s, isTerminating:%s), in %s://%s:%d!",
@@ -62,6 +67,7 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
                 e.getTaskCount(), e.getCompletedTaskCount(), e.isShutdown(), e.isTerminated(), e.isTerminating(),
                 url.getProtocol(), url.getIp(), url.getPort());
         logger.warn(msg);
+        //打印JStack，分析堆栈信息
         dumpJStack();
         throw new RejectedExecutionException(msg);
     }
@@ -69,22 +75,27 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
     private void dumpJStack() {
         long now = System.currentTimeMillis();
 
+        //每10分钟打印一次
         //dump every 10 minutes
         if (now - lastPrintTime < 10 * 60 * 1000) {
             return;
         }
 
+        //获取信息量
         if (!guard.tryAcquire()) {
             return;
         }
 
+        //创建线程池，后台执行打印 JStack
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                //日志转储地址
                 String dumpPath = url.getParameter(Constants.DUMP_DIRECTORY, System.getProperty("user.home"));
 
                 SimpleDateFormat sdf;
 
+                //获取os
                 String OS = System.getProperty("os.name").toLowerCase();
 
                 // window system don't support ":" in file name
@@ -112,6 +123,7 @@ public class AbortPolicyWithReport extends ThreadPoolExecutor.AbortPolicy {
                     }
                 }
 
+                //记录最后打印时间
                 lastPrintTime = System.currentTimeMillis();
             }
         });
